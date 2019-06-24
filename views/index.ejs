@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <% include ./pages/head%>
+  <style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Add icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+.btn {
+  background-color: DodgerBlue;
+  border: none;
+  color: DodgerBlue;
+  padding: 12px 30px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* Darker background on mouse-over */
+.btn:hover {
+  background-color: RoyalBlue;
+}
+ 
+    table, td, th {
+      border: 1px solid black;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th {
+      text-align: center;
+    }
+
+            input.largerCheckbox { 
+            width: 20px; 
+            height: 20px; 
+        } 
+  
+  </style>
+</head>
+
+<body id="page-top">
+<% include ./pages/header%>
+<div id="wrapper">
+
+  <!-- Sidebar -->
+  <% include ./pages/pageindex%>
+
+  <div id="content-wrapper">
+    <div class="container-fluid">
+      <!-- DataTables Example -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <i class="fas fa-table"></i>
+          Records</div>
+        <div class="card-body">
+          <div class="table-responsive">
+
+            <table class="table table-bordered" id="dataTable" >
+
+              <thead>
+              <tr><th>SelectAll<input type="checkbox" id="check" onclick='selectAll(this);' class="largerCheckbox"></th>
+
+                <th>Date</th>
+                <th>UserName</th>
+                <th>TextName</th>
+                <th>AudioName</th>
+                <th>AcceptCount</th>
+                <th>DenyCount</th>
+                <th>NotSure</th>
+                <th>Status</th>
+                
+                <th>Submit</th>
+                <th>Play</th>
+
+              </tr>
+              </thead>
+              <tfoot>
+              <tr><th>Select</th>
+                <th>Date</th>
+                <th>UserName</th>
+                <th>TextName</th>
+                <th>AudioName</th>
+                <th>AcceptCount</th>
+                <th>DenyCount</th>
+                <th>NotSure</th>
+                  <th>Status</th>
+                
+                <th>Submit</th>
+                <th>Play</th>
+              </tr>
+              </tfoot>
+
+              <tbody>
+              
+              <% records.forEach(function(record) {%>
+
+                  <tr>
+                  <td><input type="checkbox" name = "checkboxeg" value="<%= record._id %>" id="check" class="largerCheckbox">
+
+                  <% if(record.downloadStatus=='undownload'){%>
+                      <input type="hidden" name="downloadSt" value="<%= record.downloadStatus %>">
+                  <% }else{%>
+
+                   <label><%=record.downloadStatus%></label>
+                      <% }%>
+                  </td>
+                  <form method="post" action="/index">
+                      <input type="hidden" name="id" value="<%= record._id %>">
+                      <td> <%= record.date%></td>
+                      <td><%= record.userName%></td>
+                      <td><%= record.text%></td>
+                      <td><%=record.audioName%></td>
+                      <td><span class="badge badge-danger"><%= record.acceptCount%> </span></td>
+                      <td><span class="badge badge-danger"><%= record.denyCount%></span></td>
+                      <td><span class="badge badge-danger"><%= record.notSure%></span></td>
+                      <td><%=record.status%></td>
+                      
+                      <% if(record.status=='Accept'){ %>
+                      <td>
+
+                        <input type="hidden">Done</input>
+                      </td>
+                      <% } else{ %>
+                       
+                      <td>
+                        <input type="radio" name="status" value="Accept">Accept</input>&nbsp;<input type="radio" name="status" value="Reject">Reject</input>
+                        <br>
+                        <button type="submit">submit</button>
+                      </td>
+                      <% } %>
+                      
+
+                    </form>
+                     <td>
+                         <audio id="myTune" controls>
+                          <source src="./uploads/<%=record.audioName%>">
+                    </td>
+                  </tr>
+
+
+
+              <%}) %>
+    
+
+              </tbody>
+
+            </table>
+          </div>
+        </div>
+<!--        <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>-->
+      </div>
+
+    </div>
+    <!-- Sticky Footer -->
+    <footer class="sticky-footer">
+      <div class="container my-auto">
+        <div class="copyright text-center my-auto">
+                    <p id="sudo" style="color:green;font-size:20px;">If you want to download ,you can click Ok button</p>
+            <form method="post" action="/download">
+           <button class="btn" id="download" onclick="select()" name="downloadBtn"> <i class="fa fa-download"></i>download
+        </button> 
+        </form>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+  <!-- /.content-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+<!-- Scroll to Top Button-->
+<a class="scroll-to-top rounded" href="#page-top">
+  <i class="fas fa-angle-up"></i>
+</a>
+
+<script type = "text/javascript"> 
+
+        
+           function select() { 
+                var elements = document.getElementsByName ("checkboxeg");
+                 var count=0;
+                var values =""
+                
+                for (var i=0; i < elements.length; i++) {
+                if (elements[i].checked) {
+                    values += elements[i].value+',';
+                   
+                    count++;
+                   
+                  }
+                }
+                  if(count===0){
+                    alert("Select at least one")
+                      document.getElementById("sudo").innerHTML ="Select at least one";
+            document.getElementById("download").value=values;
+            
+                  }
+                  else{
+                    alert("You selected"+count)
+            document.getElementById("sudo").innerHTML ="Downloaded ==>"+values;
+            document.getElementById("download").value=values;
+                  }
+
+            }
+           
+            
+          
+            
+
+			function selectAll(){
+        var checkbox = document.getElementById("check");
+        var items=document.getElementsByName('checkboxeg');
+        if (checkbox.checked == 1){
+				for(var i=0; i<items.length; i++){
+					if(items[i].type=='checkbox')
+						items[i].checked=true;
+        }
+       }  
+        else if(checkbox.checked == 0){
+          for(var i=0; i<items.length; i++){
+					if(items[i].type=='checkbox')
+						items[i].checked=false;
+				}
+      }
+    }
+        
+			 </script> 
+
+
+<!-- Bootstrap core JavaScript-->
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Core plugin JavaScript-->
+<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+<!-- Page level plugin JavaScript-->
+<script src="vendor/chart.js/Chart.min.js"></script>
+<script src="vendor/datatables/jquery.dataTables.js"></script>
+<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+
+<!-- Custom scripts for all pages-->
+<script src="js/sb-admin.min.js"></script>
+
+<!-- Demo scripts for this page-->
+<script src="js/demo/datatables-demo.js"></script>
+<script src="js/demo/chart-pie-demo.js"></script>
+
+</body>
+
+</html>
